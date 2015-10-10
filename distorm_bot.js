@@ -1,8 +1,8 @@
 var Discord = require("discord.js");
 var bot = new Discord.Client();
 var AuthDetails = require("./auth.json");
-var RPS = require("RPSController.js");
-var RPSController = new RPS(bot);
+var RPSModule = require("./RPSController.js");
+var RPSController = new RPSModule(bot);
 
 bot.on("ready", function () {
 	console.log("Starting up in " + bot.channels.length + " channels");
@@ -15,7 +15,7 @@ bot.on("disconnected", function () {
 	
 });
 
-bot.on("message", function(message){
+bot.on("message", function(msg){
 
     //drop our own messages to prevent feedback loops
 	if(msg.author == bot.user){
@@ -64,16 +64,19 @@ bot.on("message", function(message){
 					RPSController.status(msg.sender);
 				}
 			}
-			var opponent = bot.getUser("username", args[1]);
-			if(!opponent){
-				opponent = bot.getUser("id", args[1]);
-			}
-			if(opponent){
-				RPSController.startGame(msg.sender, opponent);
-			}
 			else{
-				bot.sendMessage(msg.channel, "Could not find user " + args[1]);
+				var opponent = bot.getUser("username", args[1]);
+				if(!opponent){
+					opponent = bot.getUser("id", args[1]);
+				}
+				if(opponent){
+					RPSController.startGame(msg.sender, opponent);
+				}
+				else{
+					bot.sendMessage(msg.channel, "Could not find user " + args[1]);
+				}
 			}
+
 		}
 
 		//Roll dice
@@ -91,16 +94,17 @@ bot.on("message", function(message){
 					sides = args[0];
 				}
 			}
-			var rolls;
-			//TODO: For loop correction
-			for(int i = 0; i<count; i++){
-				//TODO: actual random call
-				rolls.add(Rand(sides))
+			var rolls = [];
+			var total = 0;
+			for(var i = 0; i<count; i++){
+				var die = Math.floor(Math.random() * sides + 1)
+				rolls.push(die);
+				total += die;
 			}
-			var str = msg.sender.username + " rolled " + count + "d" + sides + "and got " + rolls.total() + ". ";
+			var str = msg.sender.username + " rolled " + count + "d" + sides + " and got " + total + ". ";
 			if(count > 1){
 				str += "(";
-				for(int i = 0; i<rolls.size; i++){
+				for(var i = 0; i<rolls.length; i++){
 					if(i != 0){
 						str += "+";
 					}
@@ -158,6 +162,6 @@ bot.on("message", function(message){
 		}
 	}
 
-)
+});
 
 bot.login(AuthDetails.email, AuthDetails.password);
