@@ -1,8 +1,8 @@
 {
   "name": "distorm",
   "version": "1.0.0",
-  "description": "",
-  "main": "distorm.js",
+  "description": "Darkstorm's Discord chat bot",
+  "main": "distorm_bot.js",
   "dependencies": {
     "discord.js": "^3.8.3"
   },
@@ -14,7 +14,7 @@
     "type": "git",
     "url": "git+https://github.com/andrewwhan/distorm.git"
   },
-  "author": "",
+  "author": "Darkstorm",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/andrewwhan/distorm/issues"
