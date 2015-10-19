@@ -161,7 +161,7 @@ bot.on("disconnected", function () {
 bot.on("message", function(msg){
 
     //drop our own messages to prevent feedback loops
-	if(msg.author == bot.user){
+	if(msg.author.id == bot.user.id){
 		return;
 	}
 
