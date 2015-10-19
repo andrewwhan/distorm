@@ -4,60 +4,33 @@ var AuthDetails = require("./auth.json");
 var RPSModule = require("./RPSController.js");
 var RPSController = new RPSModule(bot);
 
-bot.on("ready", function () {
-	console.log("Starting up in " + bot.channels.length + " channels");
-});
+var games = {
+	"cs": "Counter-Strike",
+	"lol": "League of Legends",
+	"tf2": "Team Fortress 2",
+	"poe": "Path of Exile",
+	"duo": "duo queue"
+}
 
-bot.on("disconnected", function () {
-
-	console.log("Disconnected!");
-	process.exit(1); //exit node.js with an error
-	
-});
-
-bot.on("message", function(msg){
-
-    //drop our own messages to prevent feedback loops
-	if(msg.author == bot.user){
-		return;
-	}
-
-	//Break up the arguments
-	//TODO: Smarter split command to stick quoted things together and eliminate quotes"
-	var args = msg.content.split(" ");
-
-	//Check to see if this is a ! command
-	if(msg.content.substring(0, 1) === "!"){
-
-		//Ask everyone in the channel if they want to play something
-		if (args[0] === "!game") {
-			args.shift();
-			args = args.join(" ");
-			var game = args;
-			if(game === "cs"){
-				game = "Counter-Strike";
+var commands = {
+	"game": {
+		usage: "<name of game>",
+		help: "Ask everyone if they want to play the specified game"
+		method: function(bot, msg, suffix){
+			var game = games[suffix];
+			if(!game){
+				game = suffix;
 			}
-			else if(game === "lol"){
-				game = "League of Legends"
-			}
-			else if(game === "tf2"){
-				game = "Team Fortress 2"
-			}
-			else if(game === "poe"){
-				game = "Path of Exile"
-			}
-			else if(game === "duo"){
-				game = "duo queue"
-			}
-
 			bot.sendMessage(msg.channel, "@everyone Anyone up for " + game + "?");
-			console.log("sent game invites for " + game);
 		}
-
-		//Start a rock paper scissors game with someone
-		else if(args[0] === "!rps"){
-			if(args[1] === "status"){
-				if(args[2] === "global"){
+	},
+	"rps": {
+		usage: "<opponent> or !rps status (global)"
+		help: "Challenge an opponent to rock paper scissors or see the status of your/all rps games"
+		method: function(bot, msg, suffix){
+			var args = suffix.split(" ");
+			if(args[0] === "status"){
+				if(args[1] === "global"){
 					RPSController.globalstatus();
 				}
 				else{
@@ -76,15 +49,16 @@ bot.on("message", function(msg){
 					bot.sendMessage(msg.channel, "Could not find user " + args[1]);
 				}
 			}
-
 		}
-
-		//Roll dice
-		else if(args[0] === "!roll"){
+	},
+	"roll": {
+		usage: "<(x)d(y)> where x is the number of dice you're rolling and y is the number of sides"
+		help: "Rolls dice and returns the result. Argument optional, rolls 1d6 by default"
+		method: function(bot, msg, suffix){
 			var count = 1;
 			var sides = 6;
-			if(args[1]){
-				args = args[1].split("d");
+			if(suffix){
+				var args = suffix[1].split("d");
 				//TODO: Input validation here
 				if(args[1]){
 					count = args[0];
@@ -114,54 +88,111 @@ bot.on("message", function(msg){
 			}
 			bot.sendMessage(msg.channel, str);
 		}
+	},
+	"pullanddeploy": {
+        help: "bot will perform a git pull master and restart with the new code",
+        method: function(bot,msg,suffix) {
+            bot.sendMessage(msg.channel,"fetching updates...", function(error,sentMsg){
+                console.log("updating...");
+	            var spawn = require('child_process').spawn;
+                var log = function(err,stdout,stderr){
+                    if(stdout){console.log(stdout);}
+                    if(stderr){console.log(stderr);}
+                };
+                var fetch = spawn('git', ['fetch']);
+                fetch.stdout.on('data',function(data){
+                    console.log(data.toString());
+                });
+                fetch.on("close",function(code){
+                    var reset = spawn('git', ['reset','--hard','origin/master']);
+                    reset.stdout.on('data',function(data){
+                        console.log(data.toString());
+                    });
+                    reset.on("close",function(code){
+                        var npm = spawn('npm', ['install']);
+                        npm.stdout.on('data',function(data){
+                            console.log(data.toString());
+                        });
+                        npm.on("close",function(code){
+                            console.log("goodbye");
+                            bot.sendMessage(msg.channel,"brb!",function(){
+                                bot.logout(function(){
+                                    process.exit();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        }
+    },
+    "version": {
+        help: "returns the git commit this bot is running",
+        method: function(bot,msg,suffix) {
+            var commit = require('child_process').spawn('git', ['log','-n','1']);
+            commit.stdout.on('data', function(data) {
+                bot.sendMessage(msg.channel,data);
+            });
+            commit.on('close',function(code) {
+                if( code != 0){
+                    bot.sendMessage(msg.channel,"failed checking git version!");
+                }
+            });
+        }
+    },
+    "log": {
+        usage: "<log message>",
+        help: "logs message to bot console",
+        method: function(bot,msg,suffix){console.log(msg.content);}
+    }
+}
 
-		//Echo what was said
-		else if(args[0] === "!say") {
-			args.shift();
-			bot.sendMessage(msg.channel, args);
-		}
+bot.on("ready", function () {
+	console.log("Starting up in " + bot.channels.length + " channels");
+});
 
-		//Pull latest master and restart server
-		else if(args[0] === "!pullanddeploy") {
-			bot.sendMessage(msg.channel,"Restarting server!",
-				function(error,sentMsg){
-					console.log("updating...");
-		            var spawn = require('child_process').spawn;
-					spawn('sh', [ 'pullanddeploy.sh' ]).on("close",function(code){
-						console.log("exiting");
-						process.exit();
-					});
-				});
-		}
+bot.on("disconnected", function () {
 
-		//Display version from git log
-		else if(args[0] === "!version") {
-			var commit = require('child_process').spawn('git', ['log','-n','1']);
-			commit.stdout.on('data', function(data) {
-				bot.sendMessage(msg.channel,data);
-			});
-			commit.on('close',function(code) {
-				if( code != 0){
-					bot.sendMessage(msg.channel,"failed checking git version!");
-				}
-			});
-		}
+	console.log("Disconnected!");
+	process.exit(1); //exit node.js with an error
+	
+});
 
-		//Display help for commands
-		else if(args[0] === "!help"){
-			bot.sendMessage(msg.channel, "Placeholder help text!");
-		}
+bot.on("message", function(msg){
 
-		//Send contents to console log
-		else if(args[0] === "!log") {
-			args.shift();
-			console.log(args);
-		}
-		else{
-			bot.sendMessage(msg.channel, "Unrecognized ! command. See !help for a list of commands");
-		}
+    //drop our own messages to prevent feedback loops
+	if(msg.author == bot.user){
+		return;
 	}
 
+	//Check to see if this is a ! command
+	if(msg.content[0] === "!"){
+		//Get the command by taking the first token and grabbing everything after the !
+		var cmdTxt = msg.content.split(" ")[0].substring(1);
+		var suffix = msg.content.substring(cmdTxt.length+2);
+		//Display help for commands
+		if(cmdTxt === "help"){
+            //help is special since it iterates over the other commands
+            for(var cmd in commands) {
+                var info = "!" + cmd;
+                var usage = commands[cmd].usage;
+                if(usage){
+                    info += " " + usage;
+                }
+                var help = commands[cmd].help;
+                if(description){
+                    info += "\n\t" + description;
+                }
+                bot.sendMessage(msg.channel,info);
+            }
+        }
+        else if(cmd) {
+            cmd.process(bot,msg,suffix);
+		}
+		else {
+        	bot.sendMessage(msg.channel, "Invalid command " + cmdTxt);
+        } 
+	}
 });
 
 bot.login(AuthDetails.email, AuthDetails.password);
