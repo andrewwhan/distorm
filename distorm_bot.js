@@ -16,7 +16,7 @@ var commands = {
 	"game": {
 		usage: "<name of game>",
 		help: "Ask everyone if they want to play the specified game"
-		dothis: function(bot, msg, suffix){
+		perform: function(bot, msg, suffix){
 			var game = games[suffix];
 			if(!game){
 				game = suffix;
@@ -27,7 +27,7 @@ var commands = {
 	"rps": {
 		usage: "<opponent> or !rps status (global)"
 		help: "Challenge an opponent to rock paper scissors or see the status of your/all rps games"
-		dothis: function(bot, msg, suffix){
+		perform: function(bot, msg, suffix){
 			var args = suffix.split(" ");
 			if(args[0] === "status"){
 				if(args[1] === "global"){
@@ -54,7 +54,7 @@ var commands = {
 	"roll": {
 		usage: "<(x)d(y)> where x is the number of dice you're rolling and y is the number of sides"
 		help: "Rolls dice and returns the result. Argument optional, rolls 1d6 by default"
-		dothis: function(bot, msg, suffix){
+		perform: function(bot, msg, suffix){
 			var count = 1;
 			var sides = 6;
 			if(suffix){
@@ -91,7 +91,7 @@ var commands = {
 	},
 	"pullanddeploy": {
         help: "bot will perform a git pull master and restart with the new code",
-        dothis: function(bot,msg,suffix) {
+        perform: function(bot,msg,suffix) {
             bot.sendMessage(msg.channel,"fetching updates...", function(error,sentMsg){
                 console.log("updating...");
 	            var spawn = require('child_process').spawn;
@@ -128,7 +128,7 @@ var commands = {
     },
     "version": {
         help: "returns the git commit this bot is running",
-        dothis: function(bot,msg,suffix) {
+        perform: function(bot,msg,suffix) {
             var commit = require('child_process').spawn('git', ['log','-n','1']);
             commit.stdout.on('data', function(data) {
                 bot.sendMessage(msg.channel,data);
@@ -143,7 +143,7 @@ var commands = {
     "log": {
         usage: "<log message>",
         help: "logs message to bot console",
-        dothis: function(bot,msg,suffix){console.log(msg.content);}
+        perform: function(bot,msg,suffix){console.log(msg.content);}
     }
 }
 
@@ -187,7 +187,7 @@ bot.on("message", function(msg){
             }
         }
         else if(cmd) {
-            cmd.dothis(bot,msg,suffix);
+            cmd.perform(bot,msg,suffix);
 		}
 		else {
         	bot.sendMessage(msg.channel, "Invalid command " + cmdTxt);
