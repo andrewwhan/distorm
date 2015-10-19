@@ -170,6 +170,7 @@ bot.on("message", function(msg){
 		//Get the command by taking the first token and grabbing everything after the !
 		var cmdTxt = msg.content.split(" ")[0].substring(1);
 		var suffix = msg.content.substring(cmdTxt.length+2);
+		var cmd = commands[cmdTxt];
 		//Display help for commands
 		if(cmdTxt === "help"){
             //help is special since it iterates over the other commands
@@ -180,8 +181,8 @@ bot.on("message", function(msg){
                     info += " " + usage;
                 }
                 var help = commands[cmd].help;
-                if(description){
-                    info += "\n\t" + description;
+                if(help){
+                    info += "\n\t" + help;
                 }
                 bot.sendMessage(msg.channel,info);
             }
