@@ -58,14 +58,20 @@ var commands = {
 			var count = 1;
 			var sides = 6;
 			if(suffix){
-				var args = suffix[1].split("d");
+				var args = suffix.split("d");
 				//TODO: Input validation here
 				if(args[1]){
-					count = args[0];
-					sides = args[1];
+					if(!isNaN(args[0])){
+						count = args[0];
+					}
+					if(!isNaN(args[1])){
+						sides = args[1];
+					}
 				}
 				else{
-					sides = args[0];
+					if(!isNaN(args[0])){
+						sides = args[0];
+					}
 				}
 			}
 			var rolls = [];
@@ -90,7 +96,7 @@ var commands = {
 		}
 	},
 	"pullanddeploy": {
-        help: "bot will method a git pull master and restart with the new code",
+        help: "bot will perform a git pull master and restart with the new code",
         method: function(bot,msg,suffix) {
             bot.sendMessage(msg.channel,"fetching updates...", function(error,sentMsg){
                 console.log("updating...");
