@@ -55,7 +55,7 @@ RPSController.prototype.play = function(hand, msg, gameid){
 		if(gameid && !isNaN(gameid)){
 			if(gameid <= playerIsIn.length && gameid > 0){
 				if(playerIsIn[gameid - 1].game.play(msg.sender, hand)){
-					this.resolve(msg, playerIsIn[gameid - 1].game);
+					this.resolve(playerIsIn[gameid - 1].game);
 				}
 				else{
 					this.bot.sendMessage(msg.channel, "Your play has been submitted!");
@@ -68,7 +68,7 @@ RPSController.prototype.play = function(hand, msg, gameid){
 		else{
 			if(playerIsIn.length === 1){
 				if(playerIsIn[0].game.play(msg.sender, hand)){
-					this.resolve(msg, playerIsIn[0].game);
+					this.resolve(playerIsIn[0].game);
 				}
 				else{
 					this.bot.sendMessage(msg.channel, "Your play has been submitted!");
@@ -86,7 +86,7 @@ RPSController.prototype.play = function(hand, msg, gameid){
 	}
 }
 
-RPSController.prototype.resolve = function(msg, game){
+RPSController.prototype.resolve = function(game){
 	var string = "Saisho wa guu, jankenpon!\n"
 	string += game.players[0].player.username + " played " + game.players[0].play.string + " and \n";
 	string += game.players[1].player.username + " played " + game.players[1].play.string + ". \n";
@@ -97,7 +97,7 @@ RPSController.prototype.resolve = function(msg, game){
 	else{
 		string += winner.player.username + " is the winner!";
 	}
-	this.bot.sendMessage(msg.channel, string);
+	this.bot.sendMessage(game.channel, string);
 	this.games.splice(this.games.indexOf(game), 1);
 }
 
