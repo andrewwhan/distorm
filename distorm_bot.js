@@ -4,6 +4,7 @@ var AuthDetails = require("./auth.json");
 var RPSModule = require("./RPSController.js");
 var RPSController = new RPSModule(bot);
 
+//Game abbreviations for use by !game
 var games = {
 	"cs": "Counter-Strike",
 	"lol": "League of Legends",
@@ -12,6 +13,7 @@ var games = {
 	"duo": "duo queue"
 }
 
+//List of commands with usage, help text, and the function they call
 var commands = {
 	"game": {
 		usage: "<name of game>",
@@ -34,32 +36,52 @@ var commands = {
 					RPSController.globalstatus();
 				}
 				else{
-					RPSController.status(msg.sender);
+					RPSController.status(msg, true);
 				}
 			}
 			else{
-				var opponent = bot.getUser("username", args[1]);
+				var opponent = bot.getUser("username", suffix);
 				if(!opponent){
-					opponent = bot.getUser("id", args[1]);
+					opponent = bot.getUser("id", suffix);
 				}
 				if(opponent){
-					RPSController.startGame(msg.sender, opponent);
+					RPSController.startGame(msg, opponent);
 				}
 				else{
-					bot.sendMessage(msg.channel, "Could not find user " + args[1]);
+					bot.sendMessage(msg.channel, "Could not find user " + args[0]);
 				}
 			}
 		}
 	},
+	"rock":{
+		usage: "<gameid>",
+		help: "Play rock in rock paper scissors",
+		method: function(bot, msg, suffix){
+			RPSController.play(RPSController.plays.ROCK, msg, suffix);
+		}
+	},
+	"paper":{
+		usage: "<gameid>",
+		help: "Play paper in rock paper scissors",
+		method: function(bot, msg, suffix){
+			RPSController.play(RPSController.plays.PAPER, msg, suffix);
+		}
+	},
+	"scissors":{
+		usage: "<gameid>",
+		help: "Play scissors in rock paper scissors",
+		method: function(bot, msg, suffix){
+			RPSController.play(RPSController.plays.SCISSORS, msg, suffix);
+		}
+	},
 	"roll": {
-		usage: "<(x)d(y)> where x is the number of dice you're rolling and y is the number of sides",
-		help: "Rolls dice and returns the result. Argument optional, rolls 1d6 by default",
+		usage: "<(x)d(y)>",
+		help: "Rolls dice where x is the number of dice you're rolling and y is the number of sides. Argument optional, rolls 1d6 by default",
 		method: function(bot, msg, suffix){
 			var count = 1;
 			var sides = 6;
 			if(suffix){
 				var args = suffix.split("d");
-				//TODO: Input validation here
 				if(args[1]){
 					if(!isNaN(args[0])){
 						count = args[0];
@@ -179,6 +201,7 @@ bot.on("message", function(msg){
 		var cmd = commands[cmdTxt];
 		//Display help for commands
 		if(cmdTxt === "help"){
+			var string = "";
             //help is special since it iterates over the other commands
             for(var cmd in commands) {
                 var info = "!" + cmd;
@@ -190,8 +213,9 @@ bot.on("message", function(msg){
                 if(help){
                     info += "\n\t" + help;
                 }
-                bot.sendMessage(msg.channel,info);
+                string += info + "\n";
             }
+            bot.sendMessage(msg.channel, string);
         }
         else if(cmd) {
             cmd.method(bot,msg,suffix);
