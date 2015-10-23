@@ -16,6 +16,7 @@ function RPSController(client){
 
 RPSController.prototype.startGame = function(msg, opponent){
 	this.games.push(new gamePrototype(msg, opponent));
+	this.bot.sendMessage(msg.channel, "RPS game started between " + msg.sender.username + " and " + opponent.username + "!");
 	this.bot.sendMessage(msg.sender, "You have challenged " + opponent.username + 
 		" to rock paper scissors! Please type !rock, !paper, or !scissors.");
 	this.bot.sendMessage(opponent, "You have been challenged by " + msg.sender.username +
@@ -35,18 +36,30 @@ RPSController.prototype.status = function(msg, print){
 	}
 	if(print){
 		if(playerIsIn.length > 0){
-			var string = "You are in " + playerIsIn.length + " games:\n";
+			var string = "You are in " + playerIsIn.length + (playerIsIn.length > 1 ? " games:\n" : " game:\n");
 			for(var i = 0; i < playerIsIn.length; i++){
 				string += i+1 + ". " + playerIsIn[i].opponent.username + "\n";
 			}
 			this.bot.sendMessage(msg.channel, string);
 		}
+		else{
+			this.bot.sendMessage(msg.channel, "You are not currently in any games!");
+		}
 	}
 	return playerIsIn;
 }
 
-RPSController.prototype.globalstatus = function(){
-	console.log("Displaying global status");
+RPSController.prototype.globalstatus = function(msg){
+	if(this.games.length > 0){
+		var string = this.games.length + (this.games.length > 1 ? " games " : " game ") + "currently running:\n";
+		for(var i = 0; i < this.games.length; i++){
+			string += this.games[i].players[0].player.username + " vs " + this.games[i].players[1].player.username + "\n";
+		}
+		this.bot.sendMessage(msg.channel, string);
+	}
+	else{
+		this.bot.sendMessage(msg.channel, "No games are currently active!");
+	}
 }
 
 RPSController.prototype.play = function(hand, msg, gameid){

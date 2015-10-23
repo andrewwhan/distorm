@@ -16,7 +16,7 @@ var games = {
 //List of commands with usage, help text, and the function they call
 var commands = {
 	"about": {
-		help: "About this bot"
+		help: "About this bot",
 		method: function(bot, msg, suffix){
 			bot.sendMessage(msg.channel, "This bot was created by Darkstorm. Source can be found at https://github.com/andrewwhan/distorm." + 
 				" If you want to add to the project, lemme know and I'll add you as a contributor on the project.");
@@ -104,7 +104,7 @@ var commands = {
 			var args = suffix.split(" ");
 			if(args[0] === "status"){
 				if(args[1] === "global"){
-					RPSController.globalstatus();
+					RPSController.globalstatus(msg);
 				}
 				else{
 					RPSController.status(msg, true);
@@ -116,7 +116,12 @@ var commands = {
 					opponent = bot.getUser("id", suffix);
 				}
 				if(opponent){
-					RPSController.startGame(msg, opponent);
+					if(opponent.id !== msg.sender.id){
+						RPSController.startGame(msg, opponent);
+					}
+					else{
+						bot.sendMessage(msg.channel, "Stop trying to play with yourself");
+					}
 				}
 				else{
 					bot.sendMessage(msg.channel, "Could not find user " + suffix);
