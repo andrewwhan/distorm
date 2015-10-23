@@ -217,7 +217,7 @@ bot.on("message", function(msg){
             cmd.method(bot,msg,suffix);
 		}
 		else {
-        	bot.sendMessage(msg.channel, "Invalid command " + cmdTxt);
+        	bot.sendMessage(msg.channel, "Invalid command " + cmdTxt + ", see !help for a list of commands");
         } 
 	}
 });
