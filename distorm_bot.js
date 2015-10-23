@@ -15,6 +15,13 @@ var games = {
 
 //List of commands with usage, help text, and the function they call
 var commands = {
+	"about": {
+		help: "About this bot"
+		method: function(bot, msg, suffix){
+			bot.sendMessage(msg.channel, "This bot was created by Darkstorm. Source can be found at https://github.com/andrewwhan/distorm." + 
+				" If you want to add to the project, lemme know and I'll add you as a contributor on the project.");
+		}
+	},
 	"avatar": {
 		usage: "<username>",
 		help: "Retrieve the full avatar of the target user, leave blank to get your own",
@@ -45,6 +52,49 @@ var commands = {
 				game = suffix;
 			}
 			bot.sendMessage(msg.channel, "@everyone Anyone up for " + game + "?");
+		}
+	},
+	"roll": {
+		usage: "<(x)d(y)>",
+		help: "Rolls dice where x is the number of dice you're rolling and y is the number of sides. Argument optional, rolls 1d6 by default",
+		method: function(bot, msg, suffix){
+			var count = 1;
+			var sides = 6;
+			if(suffix){
+				var args = suffix.split("d");
+				if(args[1]){
+					if(!isNaN(args[0])){
+						count = args[0];
+					}
+					if(!isNaN(args[1])){
+						sides = args[1];
+					}
+				}
+				else{
+					if(!isNaN(args[0])){
+						sides = args[0];
+					}
+				}
+			}
+			var rolls = [];
+			var total = 0;
+			for(var i = 0; i<count; i++){
+				var die = Math.floor(Math.random() * sides + 1)
+				rolls.push(die);
+				total += die;
+			}
+			var str = msg.sender.username + " rolled " + count + "d" + sides + " and got " + total + ". ";
+			if(count > 1){
+				str += "(";
+				for(var i = 0; i<rolls.length; i++){
+					if(i != 0){
+						str += "+";
+					}
+					str += rolls[i];
+				}
+				str += ")";
+			}
+			bot.sendMessage(msg.channel, str);
 		}
 	},
 	"rps": {
@@ -93,49 +143,6 @@ var commands = {
 		help: "Play scissors in rock paper scissors",
 		method: function(bot, msg, suffix){
 			RPSController.play(RPSController.plays.SCISSORS, msg, suffix);
-		}
-	},
-	"roll": {
-		usage: "<(x)d(y)>",
-		help: "Rolls dice where x is the number of dice you're rolling and y is the number of sides. Argument optional, rolls 1d6 by default",
-		method: function(bot, msg, suffix){
-			var count = 1;
-			var sides = 6;
-			if(suffix){
-				var args = suffix.split("d");
-				if(args[1]){
-					if(!isNaN(args[0])){
-						count = args[0];
-					}
-					if(!isNaN(args[1])){
-						sides = args[1];
-					}
-				}
-				else{
-					if(!isNaN(args[0])){
-						sides = args[0];
-					}
-				}
-			}
-			var rolls = [];
-			var total = 0;
-			for(var i = 0; i<count; i++){
-				var die = Math.floor(Math.random() * sides + 1)
-				rolls.push(die);
-				total += die;
-			}
-			var str = msg.sender.username + " rolled " + count + "d" + sides + " and got " + total + ". ";
-			if(count > 1){
-				str += "(";
-				for(var i = 0; i<rolls.length; i++){
-					if(i != 0){
-						str += "+";
-					}
-					str += rolls[i];
-				}
-				str += ")";
-			}
-			bot.sendMessage(msg.channel, str);
 		}
 	},
     "version": {
