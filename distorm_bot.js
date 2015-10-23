@@ -15,6 +15,27 @@ var games = {
 
 //List of commands with usage, help text, and the function they call
 var commands = {
+	"avatar": {
+		usage: "<username>",
+		help: "Retrieve the full avatar of the target user, leave blank to get your own",
+		method: function(bot, msg, suffix){
+			if(suffix){
+				var target = bot.getUser("username", suffix);
+				if(!target){
+					target = bot.getUser("id", suffix);
+				}
+				if(target){
+					bot.sendMessage(msg.channel, target.avatarURL);
+				}
+				else{
+					bot.sendMessage(msg.channel, "Could not find user " + suffix);
+				}
+			}
+			else{
+				bot.sendMessage(msg.channel, msg.sender.avatarURL);
+			}
+		}
+	},
 	"game": {
 		usage: "<name of game>",
 		help: "Ask everyone if they want to play the specified game",
@@ -48,7 +69,7 @@ var commands = {
 					RPSController.startGame(msg, opponent);
 				}
 				else{
-					bot.sendMessage(msg.channel, "Could not find user " + args[0]);
+					bot.sendMessage(msg.channel, "Could not find user " + suffix);
 				}
 			}
 		}
