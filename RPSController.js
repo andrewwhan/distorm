@@ -1,8 +1,6 @@
 var gamePrototype = require("./RPSGame.js");
 var generalChannel;
 
-
-
 function RPSController(client){
 
 	this.bot = client;

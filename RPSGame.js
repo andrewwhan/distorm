@@ -3,6 +3,7 @@ function RPSGame(msg, player2){
 	this.channel = msg.channel;
 }
 
+//Checks if this game contains that player, if so, return whether the player is in first or second slot
 RPSGame.prototype.containsPlayer = function(player){
 	// console.log(this.players[0].player.id + " " + this.players[1].player.id + " " + player.id);
 	if(this.players[0].player.id === player.id){

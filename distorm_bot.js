@@ -27,9 +27,9 @@ var commands = {
 		help: "Retrieve the full avatar of the target user, leave blank to get your own",
 		method: function(bot, msg, suffix){
 			if(suffix){
-				var target = bot.getUser("username", suffix);
+				var target = bot.users.get("username", suffix);
 				if(!target){
-					target = bot.getUser("id", suffix);
+					target = bot.users.get("id", suffix);
 				}
 				if(target){
 					bot.sendMessage(msg.channel, target.avatarURL);
@@ -111,9 +111,9 @@ var commands = {
 				}
 			}
 			else{
-				var opponent = bot.getUser("username", suffix);
+				var opponent = bot.users.get("username", suffix);
 				if(!opponent){
-					opponent = bot.getUser("id", suffix);
+					opponent = bot.users.get("id", suffix);
 				}
 				if(opponent){
 					if(opponent.id !== msg.sender.id){
