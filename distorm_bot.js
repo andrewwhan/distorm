@@ -2,6 +2,8 @@ var Discord = require("discord.js");
 var bot = new Discord.Client();
 var AuthDetails = require("./auth.json");
 var RPSModule = require("./RPSController.js");
+const fs = require('fs');
+
 var RPSController = new RPSModule(bot);
 
 //Game abbreviations for use by !game
@@ -148,6 +150,15 @@ var commands = {
 		help: "Play scissors in rock paper scissors",
 		method: function(bot, msg, suffix){
 			RPSController.play(RPSController.plays.SCISSORS, msg, suffix);
+		}
+	},
+	"sound": {
+		usage: "<file>",
+		help: "Play a sound file in my archives",
+		method: function(bot, msg, suffix){
+			fs.readdir("sounds/", function(err, files){
+				
+			})
 		}
 	},
     "version": {
